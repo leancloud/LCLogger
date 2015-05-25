@@ -147,13 +147,13 @@ extern "C" {
 #endif
 
 // Set the default logger which will be the one used when passing NULL for logge
-extern void LoggerSetDefaultLogger(Logger *aLogger) NSLOGGER_NOSTRIP;
+extern void LCLoggerSetDefaultLogger(Logger *aLogger) NSLOGGER_NOSTRIP;
 
 // Get the default logger, create one if it does not exist
-extern Logger *LoggerGetDefaultLogger(void) NSLOGGER_NOSTRIP;
+extern Logger *LCLoggerGetDefaultLogger(void) NSLOGGER_NOSTRIP;
 
 // Checks whether the default logger exists, returns it if YES, otherwise do NO create one
-extern Logger *LoggerCheckDefaultLogger(void) NSLOGGER_NOSTRIP;
+extern Logger *LCLoggerCheckDefaultLogger(void) NSLOGGER_NOSTRIP;
 
 // Initialize a new logger, set as default logger if this is the first one
 // Options default to:
@@ -161,18 +161,18 @@ extern Logger *LoggerCheckDefaultLogger(void) NSLOGGER_NOSTRIP;
 // - buffer until connection = YES
 // - browse Bonjour = YES
 // - browse only locally on Bonjour = YES
-extern Logger* LoggerInit(void) NSLOGGER_NOSTRIP;
+extern Logger* LCLoggerInit(void) NSLOGGER_NOSTRIP;
 
 // Set logger options if you don't want the default options (see above)
-extern void LoggerSetOptions(Logger *logger, uint32_t options) NSLOGGER_NOSTRIP;
+extern void LCLoggerSetOptions(Logger *logger, uint32_t options) NSLOGGER_NOSTRIP;
 
 // Set Bonjour logging names, so you can force the logger to use a specific service type
 // or direct logs to the machine on your network which publishes a specific name
-extern void LoggerSetupBonjour(Logger *logger, CFStringRef bonjourServiceType, CFStringRef bonjourServiceName) NSLOGGER_NOSTRIP;
+extern void LCLoggerSetupBonjour(Logger *logger, CFStringRef bonjourServiceType, CFStringRef bonjourServiceName) NSLOGGER_NOSTRIP;
 
 // Directly set the viewer host (hostname or IP address) and port we want to connect to. If set, LoggerStart() will
 // try to connect there first before trying Bonjour
-extern void LoggerSetViewerHost(Logger *logger, CFStringRef hostName, UInt32 port) NSLOGGER_NOSTRIP;
+extern void LCLoggerSetViewerHost(Logger *logger, CFStringRef hostName, UInt32 port) NSLOGGER_NOSTRIP;
 
 // Configure the logger to use a local file for buffering, instead of memory.
 // - If you initially set a buffer file after logging started but while a logger connection
@@ -181,22 +181,22 @@ extern void LoggerSetViewerHost(Logger *logger, CFStringRef hostName, UInt32 por
 // - If you want to change the buffering file after logging started, you should first
 //   call LoggerStop() the call LoggerSetBufferFile(). Note that all logs stored in the previous
 //   buffer file WON'T be transferred to the new file in this case.
-extern void LoggerSetBufferFile(Logger *logger, CFStringRef absolutePath) NSLOGGER_NOSTRIP;
+extern void LCLoggerSetBufferFile(Logger *logger, CFStringRef absolutePath) NSLOGGER_NOSTRIP;
 
 // Activate the logger, try connecting. You can pass NULL to start the default logger,
 // it will return a pointer to it.
-extern Logger* LoggerStart(Logger *logger) NSLOGGER_NOSTRIP;
+extern Logger* LCLoggerStart(Logger *logger) NSLOGGER_NOSTRIP;
 
 //extern void LoggerConnectToHost(CFDataRef address, int port);
 
 // Deactivate and free the logger.
-extern void LoggerStop(Logger *logger) NSLOGGER_NOSTRIP;
+extern void LCLoggerStop(Logger *logger) NSLOGGER_NOSTRIP;
 
 // Pause the current thread until all messages from the logger have been transmitted
 // this is useful to use before an assert() aborts your program. If waitForConnection is YES,
 // LoggerFlush() will block even if the client is not currently connected to the desktop
 // viewer. You should be using NO most of the time, but in some cases it can be useful.
-extern void LoggerFlush(Logger *logger, BOOL waitForConnection) NSLOGGER_NOSTRIP;
+extern void LCLoggerFlush(Logger *logger, BOOL waitForConnection) NSLOGGER_NOSTRIP;
 
 /* Logging functions. Each function exists in four versions:
  *
@@ -210,48 +210,48 @@ extern void LoggerFlush(Logger *logger, BOOL waitForConnection) NSLOGGER_NOSTRIP
  */
 
 // Log a message, calling format compatible with NSLog
-extern void LogMessageCompat(NSString *format, ...) NSLOGGER_NOSTRIP;
+extern void LCLogMessageCompat(NSString *format, ...) NSLOGGER_NOSTRIP;
 
 // Log a message without any formatting (just log the given string)
-extern void LogMessageRaw(NSString *message) NSLOGGER_NOSTRIP;
-extern void LogMessageRawF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message) NSLOGGER_NOSTRIP;
-extern void LogMessageRawToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message) NSLOGGER_NOSTRIP;
+extern void LCLogMessageRaw(NSString *message) NSLOGGER_NOSTRIP;
+extern void LCLogMessageRawF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message) NSLOGGER_NOSTRIP;
+extern void LCLogMessageRawToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message) NSLOGGER_NOSTRIP;
 
 // Log a message. domain can be nil if default domain.
-extern void LogMessage(NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(3,4) NSLOGGER_NOSTRIP;
-extern void LogMessageF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(6,7) NSLOGGER_NOSTRIP;
-extern void LogMessageTo(Logger *logger, NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(4,5) NSLOGGER_NOSTRIP;
-extern void LogMessageToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(7,8) NSLOGGER_NOSTRIP;
+extern void LCLogMessage(NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(3,4) NSLOGGER_NOSTRIP;
+extern void LCLogMessageF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(6,7) NSLOGGER_NOSTRIP;
+extern void LCLogMessageTo(Logger *logger, NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(4,5) NSLOGGER_NOSTRIP;
+extern void LCLogMessageToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...) NS_FORMAT_FUNCTION(7,8) NSLOGGER_NOSTRIP;
 
 // Log a message. domain can be nil if default domain (versions with va_list format args instead of ...)
-extern void LogMessage_va(NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(3,0) NSLOGGER_NOSTRIP;
-extern void LogMessageF_va(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(6,0) NSLOGGER_NOSTRIP;
-extern void LogMessageTo_va(Logger *logger, NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(4,0) NSLOGGER_NOSTRIP;
-extern void LogMessageToF_va(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(7,0) NSLOGGER_NOSTRIP;
+extern void LCLogMessage_va(NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(3,0) NSLOGGER_NOSTRIP;
+extern void LCLogMessageF_va(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(6,0) NSLOGGER_NOSTRIP;
+extern void LCLogMessageTo_va(Logger *logger, NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(4,0) NSLOGGER_NOSTRIP;
+extern void LCLogMessageToF_va(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args) NS_FORMAT_FUNCTION(7,0) NSLOGGER_NOSTRIP;
 
 // Send binary data to remote logger
-extern void LogData(NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
-extern void LogDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
-extern void LogDataTo(Logger *logger, NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
-extern void LogDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogData(NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogDataTo(Logger *logger, NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data) NSLOGGER_NOSTRIP;
 
 // Send image data to remote logger
-extern void LogImageData(NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
-extern void LogImageDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
-extern void LogImageDataTo(Logger *logger, NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
-extern void LogImageDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogImageData(NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogImageDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogImageDataTo(Logger *logger, NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
+extern void LCLogImageDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data) NSLOGGER_NOSTRIP;
 
 // Mark the start of a block. This allows the remote logger to group blocks together
-extern void LogStartBlock(NSString *format, ...) NS_FORMAT_FUNCTION(1,2) NSLOGGER_NOSTRIP;
-extern void LogStartBlockTo(Logger *logger, NSString *format, ...) NS_FORMAT_FUNCTION(2,3) NSLOGGER_NOSTRIP;
+extern void LCLogStartBlock(NSString *format, ...) NS_FORMAT_FUNCTION(1,2) NSLOGGER_NOSTRIP;
+extern void LCLogStartBlockTo(Logger *logger, NSString *format, ...) NS_FORMAT_FUNCTION(2,3) NSLOGGER_NOSTRIP;
 
 // Mark the end of a block
-extern void LogEndBlock(void) NSLOGGER_NOSTRIP;
-extern void LogEndBlockTo(Logger *logger) NSLOGGER_NOSTRIP;
+extern void LCLogEndBlock(void) NSLOGGER_NOSTRIP;
+extern void LCLogEndBlockTo(Logger *logger) NSLOGGER_NOSTRIP;
 
 // Log a marker (text can be null)
-extern void LogMarker(NSString *text) NSLOGGER_NOSTRIP;
-extern void LogMarkerTo(Logger *logger, NSString *text) NSLOGGER_NOSTRIP;
+extern void LCLogMarker(NSString *text) NSLOGGER_NOSTRIP;
+extern void LCLogMarkerTo(Logger *logger, NSString *text) NSLOGGER_NOSTRIP;
 
 #ifdef __cplusplus
 };

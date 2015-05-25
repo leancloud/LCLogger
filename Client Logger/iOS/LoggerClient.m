@@ -215,14 +215,14 @@ static int sSTDOUThadSIGPIPE, sSTDERRhadSIGPIPE;
 #pragma mark -
 #pragma mark Default logger
 // -----------------------------------------------------------------------------
-void LoggerSetDefaultLogger(Logger *defaultLogger)
+void LCLoggerSetDefaultLogger(Logger *defaultLogger)
 {
 	pthread_mutex_lock(&sDefaultLoggerMutex);
 	sDefaultLogger = defaultLogger;
 	pthread_mutex_unlock(&sDefaultLoggerMutex);
 }
 
-Logger *LoggerGetDefaultLogger(void)
+Logger *LCLoggerGetDefaultLogger(void)
 {
 	Logger *l = sDefaultLogger;
 	if (l == NULL)
@@ -230,13 +230,13 @@ Logger *LoggerGetDefaultLogger(void)
 		pthread_mutex_lock(&sDefaultLoggerMutex);
 		l = sDefaultLogger;
 		if (l == NULL)
-			l = LoggerInit();
+			l = LCLoggerInit();
 		pthread_mutex_unlock(&sDefaultLoggerMutex);
 	}
 	return l;
 }
 
-Logger *LoggerCheckDefaultLogger(void)
+Logger *LCLoggerCheckDefaultLogger(void)
 {
 	return sDefaultLogger;
 }
@@ -245,7 +245,7 @@ Logger *LoggerCheckDefaultLogger(void)
 #pragma mark -
 #pragma mark Initialization and setup
 // -----------------------------------------------------------------------------
-Logger *LoggerInit(void)
+Logger *LCLoggerInit(void)
 {
 	LOGGERDBG(CFSTR("LoggerInit defaultLogger=%p"), sDefaultLogger);
 	
@@ -297,7 +297,7 @@ Logger *LoggerInit(void)
 	return logger;
 }
 
-void LoggerSetOptions(Logger *logger, uint32_t options)
+void LCLoggerSetOptions(Logger *logger, uint32_t options)
 {
 	LOGGERDBG(CFSTR("LoggerSetOptions options=0x%08lx"), options);
 
@@ -308,17 +308,17 @@ void LoggerSetOptions(Logger *logger, uint32_t options)
 		options &= (uint32_t)~kLoggerOption_CaptureSystemConsole;
 
 	if (logger == NULL)
-		logger = LoggerGetDefaultLogger();
+		logger = LCLoggerGetDefaultLogger();
 	if (logger != NULL)
 		logger->options = options;
 }
 
-void LoggerSetupBonjour(Logger *logger, CFStringRef bonjourServiceType, CFStringRef bonjourServiceName)
+void LCLoggerSetupBonjour(Logger *logger, CFStringRef bonjourServiceType, CFStringRef bonjourServiceName)
 {
 	LOGGERDBG(CFSTR("LoggerSetupBonjour serviceType=%@ serviceName=%@"), bonjourServiceType, bonjourServiceName);
 
 	if (logger == NULL)
-		logger = LoggerGetDefaultLogger();
+		logger = LCLoggerGetDefaultLogger();
 	if (logger != NULL)
 	{
 		if (bonjourServiceType != NULL)
@@ -334,10 +334,10 @@ void LoggerSetupBonjour(Logger *logger, CFStringRef bonjourServiceType, CFString
 	}
 }
 
-void LoggerSetViewerHost(Logger *logger, CFStringRef hostName, UInt32 port)
+void LCLoggerSetViewerHost(Logger *logger, CFStringRef hostName, UInt32 port)
 {
 	if (logger == NULL)
-		logger = LoggerGetDefaultLogger();
+		logger = LCLoggerGetDefaultLogger();
 	if (logger == NULL)
 		return;
 
@@ -362,11 +362,11 @@ void LoggerSetViewerHost(Logger *logger, CFStringRef hostName, UInt32 port)
 		CFRelease(previousHost);
 }
 
-void LoggerSetBufferFile(Logger *logger, CFStringRef absolutePath)
+void LCLoggerSetBufferFile(Logger *logger, CFStringRef absolutePath)
 {
 	if (logger == NULL)
 	{
-		logger = LoggerGetDefaultLogger();
+		logger = LCLoggerGetDefaultLogger();
 		if (logger == NULL)
 			return;
 	}
@@ -388,11 +388,11 @@ void LoggerSetBufferFile(Logger *logger, CFStringRef absolutePath)
 	}
 }
 
-Logger *LoggerStart(Logger *logger)
+Logger *LCLoggerStart(Logger *logger)
 {
 	// will do nothing if logger is already started
 	if (logger == NULL)
-		logger = LoggerGetDefaultLogger();
+		logger = LCLoggerGetDefaultLogger();
 
     if (logger != NULL)
 	{
@@ -417,7 +417,7 @@ Logger *LoggerStart(Logger *logger)
 	return logger;
 }
 
-void LoggerStop(Logger *logger)
+void LCLoggerStop(Logger *logger)
 {
 	LOGGERDBG(CFSTR("LoggerStop"));
 
@@ -473,17 +473,17 @@ static void LoggerFlushAllOnExit()
 	pthread_mutex_lock(&sLoggersListMutex);
 	CFIndex numLoggers = CFArrayGetCount(sLoggersList);
 	for (CFIndex i=0; i < numLoggers; i++)
-		LoggerFlush((Logger *) CFArrayGetValueAtIndex(sLoggersList, i), NO);
+		LCLoggerFlush((Logger *) CFArrayGetValueAtIndex(sLoggersList, i), NO);
 	pthread_mutex_unlock(&sLoggersListMutex);
 }
 
-void LoggerFlush(Logger *logger, BOOL waitForConnection)
+void LCLoggerFlush(Logger *logger, BOOL waitForConnection)
 {
 	// Special case: if nothing has ever been logged, don't bother
 	if (logger == NULL && sDefaultLogger == NULL)
 		return;
 	if (logger == NULL)
-		logger = LoggerGetDefaultLogger();
+		logger = LCLoggerGetDefaultLogger();
 	if (logger != NULL &&
 		pthread_self() != logger->workerThread &&
 		(logger->connected || logger->bufferFile != NULL || waitForConnection))		// TODO: change this test
@@ -1064,7 +1064,7 @@ static void LoggerLogFromConsole(NSString *tag, int fd, int outfd)
 					for (unsigned i = 0; i < consoleGrabbersListLength; i++)
 					{
 						if (consoleGrabbersList[i] != NULL)
-							LogMessageTo(consoleGrabbersList[i], tag, 0, @"%@", msg);
+							LCLogMessageTo(consoleGrabbersList[i], tag, 0, @"%@", msg);
 					}
 				}
 				
@@ -2462,7 +2462,7 @@ static void LogMessageRawTo_internal(Logger *logger,
 								  NSString *message)
 {
 	// Variant of the LogMessage function that doesn't perform any variable arguments formatting
-	logger = LoggerStart(logger);	// start if needed
+	logger = LCLoggerStart(logger);	// start if needed
     if (logger != NULL)
 	{
         int32_t seq = OSAtomicIncrement32Barrier(&logger->messageSeq);
@@ -2507,7 +2507,7 @@ static void LogMessageTo_internal(Logger *logger,
 								  NSString *format,
 								  va_list args)
 {
-	logger = LoggerStart(logger);	// start if needed
+	logger = LCLoggerStart(logger);	// start if needed
     if (logger != NULL)
 	{
         int32_t seq = OSAtomicIncrement32Barrier(&logger->messageSeq);
@@ -2566,7 +2566,7 @@ static void LogImageTo_internal(Logger *logger,
 								int height,
 								NSData *data)
 {
-	logger = LoggerStart(logger);		// start if needed
+	logger = LCLoggerStart(logger);		// start if needed
 	if (logger != NULL)
 	{
 		int32_t seq = OSAtomicIncrement32Barrier(&logger->messageSeq);
@@ -2611,7 +2611,7 @@ static void LogDataTo_internal(Logger *logger,
 							   NSString *domain,
 							   int level, NSData *data)
 {
-	logger = LoggerStart(logger);		// start if needed
+	logger = LCLoggerStart(logger);		// start if needed
     if (logger != NULL)
     {
         int32_t seq = OSAtomicIncrement32Barrier(&logger->messageSeq);
@@ -2646,7 +2646,7 @@ static void LogDataTo_internal(Logger *logger,
 
 static void LogStartBlockTo_internal(Logger *logger, NSString *format, va_list args)
 {
-	logger = LoggerStart(logger);		// start if needed
+	logger = LCLoggerStart(logger);		// start if needed
 	if (logger)
 	{
 		int32_t seq = OSAtomicIncrement32Barrier(&logger->messageSeq);
@@ -2677,22 +2677,22 @@ static void LogStartBlockTo_internal(Logger *logger, NSString *format, va_list a
 #pragma mark -
 #pragma mark Public logging functions
 // -----------------------------------------------------------------------------
-void LogMessageRaw(NSString *message)
+void LCLogMessageRaw(NSString *message)
 {
 	LogMessageRawTo_internal(NULL, NULL, 0, NULL, nil, 0, message);
 }
 
-void LogMessageRawF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message)
+void LCLogMessageRawF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message)
 {
 	LogMessageRawTo_internal(NULL, filename, lineNumber, functionName, domain, level, message);
 }
 
-void LogMessageRawToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message)
+void LCLogMessageRawToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *message)
 {
 	LogMessageRawTo_internal(logger, filename, lineNumber, functionName, domain, level, message);
 }
 
-void LogMessageCompat(NSString *format, ...)
+void LCLogMessageCompat(NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2700,7 +2700,7 @@ void LogMessageCompat(NSString *format, ...)
 	va_end(args);
 }
 
-void LogMessageTo(Logger *logger, NSString *domain, int level, NSString *format, ...)
+void LCLogMessageTo(Logger *logger, NSString *domain, int level, NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2708,7 +2708,7 @@ void LogMessageTo(Logger *logger, NSString *domain, int level, NSString *format,
 	va_end(args);
 }
 
-void LogMessageToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...)
+void LCLogMessageToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2716,17 +2716,17 @@ void LogMessageToF(Logger *logger, const char *filename, int lineNumber, const c
 	va_end(args);
 }
 
-void LogMessageTo_va(Logger *logger, NSString *domain, int level, NSString *format, va_list args)
+void LCLogMessageTo_va(Logger *logger, NSString *domain, int level, NSString *format, va_list args)
 {
 	LogMessageTo_internal(logger, NULL, 0, NULL, domain, level, format, args);
 }
 
-void LogMessageToF_va(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args)
+void LCLogMessageToF_va(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args)
 {
 	LogMessageTo_internal(logger, filename, lineNumber, functionName, domain, level, format, args);
 }
 
-void LogMessage(NSString *domain, int level, NSString *format, ...)
+void LCLogMessage(NSString *domain, int level, NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2734,7 +2734,7 @@ void LogMessage(NSString *domain, int level, NSString *format, ...)
 	va_end(args);
 }
 
-void LogMessageF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...)
+void LCLogMessageF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2742,57 +2742,57 @@ void LogMessageF(const char *filename, int lineNumber, const char *functionName,
 	va_end(args);
 }
 
-void LogMessage_va(NSString *domain, int level, NSString *format, va_list args)
+void LCLogMessage_va(NSString *domain, int level, NSString *format, va_list args)
 {
 	LogMessageTo_internal(NULL, NULL, 0, NULL, domain, level, format, args);
 }
 
-void LogMessageF_va(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args)
+void LCLogMessageF_va(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSString *format, va_list args)
 {
 	LogMessageTo_internal(NULL, filename, lineNumber, functionName, domain, level, format, args);
 }
 
-void LogData(NSString *domain, int level, NSData *data)
+void LCLogData(NSString *domain, int level, NSData *data)
 {
 	LogDataTo_internal(NULL, NULL, 0, NULL, domain, level, data);
 }
 
-void LogDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data)
+void LCLogDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data)
 {
 	LogDataTo_internal(NULL, filename, lineNumber, functionName, domain, level, data);
 }
 
-void LogDataTo(Logger *logger, NSString *domain, int level, NSData *data)
+void LCLogDataTo(Logger *logger, NSString *domain, int level, NSData *data)
 {
 	LogDataTo_internal(logger, NULL, 0, NULL, domain, level, data);
 }
 
-void LogDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data)
+void LCLogDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, NSData *data)
 {
 	LogDataTo_internal(logger, filename, lineNumber, functionName, domain, level, data);
 }
 
-void LogImageData(NSString *domain, int level, int width, int height, NSData *data)
+void LCLogImageData(NSString *domain, int level, int width, int height, NSData *data)
 {
 	LogImageTo_internal(NULL, NULL, 0, NULL, domain, level, width, height, data);
 }
 
-void LogImageDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data)
+void LCLogImageDataF(const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data)
 {
 	LogImageTo_internal(NULL, filename, lineNumber, functionName, domain, level, width, height, data);
 }
 
-void LogImageDataTo(Logger *logger, NSString *domain, int level, int width, int height, NSData *data)
+void LCLogImageDataTo(Logger *logger, NSString *domain, int level, int width, int height, NSData *data)
 {
 	LogImageTo_internal(logger, NULL, 0, NULL, domain, level, width, height, data);
 }
 
-void LogImageDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data)
+void LCLogImageDataToF(Logger *logger, const char *filename, int lineNumber, const char *functionName, NSString *domain, int level, int width, int height, NSData *data)
 {
 	LogImageTo_internal(logger, filename, lineNumber, functionName, domain, level, width, height, data);
 }
 
-void LogStartBlock(NSString *format, ...)
+void LCLogStartBlock(NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2800,7 +2800,7 @@ void LogStartBlock(NSString *format, ...)
 	va_end(args);
 }
 
-void LogStartBlockTo(Logger *logger, NSString *format, ...)
+void LCLogStartBlockTo(Logger *logger, NSString *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -2808,9 +2808,9 @@ void LogStartBlockTo(Logger *logger, NSString *format, ...)
 	va_end(args);
 }
 
-void LogEndBlockTo(Logger *logger)
+void LCLogEndBlockTo(Logger *logger)
 {
-	logger = LoggerStart(logger);
+	logger = LCLoggerStart(logger);
     if (logger)
     {
         if (logger->options & kLoggerOption_LogToConsole)
@@ -2834,14 +2834,14 @@ void LogEndBlockTo(Logger *logger)
     }
 }
 
-void LogEndBlock(void)
+void LCLogEndBlock(void)
 {
-	LogEndBlockTo(NULL);
+	LCLogEndBlockTo(NULL);
 }
 
-void LogMarkerTo(Logger *logger, NSString *text)
+void LCLogMarkerTo(Logger *logger, NSString *text)
 {
-	logger = LoggerStart(logger);		// start if needed
+	logger = LCLoggerStart(logger);		// start if needed
 	if (logger != NULL)
 	{
 		int32_t seq = OSAtomicIncrement32Barrier(&logger->messageSeq);
@@ -2877,7 +2877,7 @@ void LogMarkerTo(Logger *logger, NSString *text)
 	}
 }
 
-void LogMarker(NSString *text)
+void LCLogMarker(NSString *text)
 {
-	LogMarkerTo(NULL, text);
+	LCLogMarkerTo(NULL, text);
 }

@@ -55,7 +55,7 @@ void logRandomImage(int numImage)
 	CGContextShowTextAtPoint(ctx, 0, 50, buf, strlen(buf));
 	UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
 	CGSize sz = img.size;
-	LogImageData(@"image", 0, sz.width, sz.height, UIImagePNGRepresentation(img));
+	LCLogImageData(@"image", 0, sz.width, sz.height, UIImagePNGRepresentation(img));
 	UIGraphicsEndImageContext();
 }
 
@@ -129,14 +129,14 @@ void logRandomImage(int numImage)
 		viewerPortField.text = [NSString stringWithFormat:@"%d", port];
 
 		if ([host length] && port != 0)
-			LoggerSetViewerHost(NULL, (__bridge CFStringRef)host, (UInt32)port);
+			LCLoggerSetViewerHost(NULL, (__bridge CFStringRef)host, (UInt32)port);
 		else
-			LoggerSetViewerHost(NULL, NULL, 0);
+			LCLoggerSetViewerHost(NULL, NULL, 0);
 
 		BOOL useBonjour = browseBonjour.on;
 		BOOL onlyLocalDomain = browseLocalDomainOnly.on;
 
-		LoggerSetOptions(NULL,						// configure the default logger
+		LCLoggerSetOptions(NULL,						// configure the default logger
 						 kLoggerOption_BufferLogsUntilConnection |
 						 kLoggerOption_UseSSL |
 						 kLoggerOption_CaptureSystemConsole	|
@@ -234,7 +234,7 @@ void logRandomImage(int numImage)
 				int nadd = 1 + arc4random() % 150;
 				for (int i = 0; i < nadd; i++)
 					[s appendFormat:@"%c", 32 + (arc4random() % 27)];
-				LogMessage([tagsArray objectAtIndex:(arc4random() % [tagsArray count])], arc4random() % 3, @"%@", s);
+				LCLogMessage([tagsArray objectAtIndex:(arc4random() % [tagsArray count])], arc4random() % 3, @"%@", s);
 			}
 			else if (phase == 1)
 			{
@@ -242,7 +242,7 @@ void logRandomImage(int numImage)
 				int n = 1 + arc4random() % 1024;
 				for (int i = 0; i < n; i++)
 					buf[i] = (unsigned char)arc4random();
-				LogData(@"main", 1, [[NSData alloc] initWithBytesNoCopy:buf length:n]);
+				LCLogData(@"main", 1, [[NSData alloc] initWithBytesNoCopy:buf length:n]);
 			}
 			else if (phase == 5)
 			{
